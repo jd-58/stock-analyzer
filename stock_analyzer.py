@@ -8,6 +8,7 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import yfinance as yf
 
 print("Enter a stock ticker:")
@@ -18,3 +19,6 @@ data = yf.download(tickers=user_ticker, start="2019-09-10", end="2020-10-09")
 # Show the data
 
 print(data)
+
+
+
