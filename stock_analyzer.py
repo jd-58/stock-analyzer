@@ -15,12 +15,15 @@ import yfinance as yf
 import finplot as fplt
 import plotly.graph_objects as go
 import plotly.express as px
+from datetime import date, timedelta
 
 
 def get_stock_information(selected_ticker):
     """Downloads the chosen stock data from Yahoo Finance"""
     stock_data = yf.download(tickers=selected_ticker, period="1mo")
     stock_data = stock_data.reset_index(drop=False)
+    stock_data['Date'] = stock_data['Date'].astype(str)  # Prevents a warning when trying to compare dates
+    stock_data["% Change"] = np.round(stock_data["Adj Close"].pct_change()*100,2)
     return stock_data
 
 
@@ -46,6 +49,7 @@ def create_candlestick(stock_for_candlestick):
 
     return fplt.show()
 
+
 """OLD CODE
 Previous graph code:
     stock_df = get_stock_information(stock_for_graph)
@@ -55,6 +59,20 @@ Previous graph code:
     sns.despine()
     plt.title("Stock Price", size='x-large', color='blue')
     return plt.show()"""
+
+
+""" OLD - not needed after adding percent change column in the get stock info function
+def percent_change(stock):
+    stock_data = get_stock_information(stock)
+    current_date = (date.today())
+    yesterday = (current_date - timedelta(days=1))
+    current_date = str(current_date)
+    yesterday = str(yesterday)
+    index_today = stock_data.isin([current_date]).any(axis=1).idxmax()
+    index_yesterday = stock_data.isin([yesterday]).any(axis=1).idxmax()
+    return stock_data"""
+
+
 
 
 print("Enter a stock ticker:")
