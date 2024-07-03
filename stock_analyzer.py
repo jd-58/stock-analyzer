@@ -31,7 +31,7 @@ def create_graph(stock_for_graph):
     """Creates a basic line chart"""
     stock_df = get_stock_information(stock_for_graph)
     graph_title = str(stock_for_graph) + " price"
-    fig = px.line(stock_df, x="Date", y="Close", title=graph_title)
+    fig = px.line(stock_df, x="Date", y="Close", title=graph_title, hover_data=["Date", "Adj Close", "% Change"])
     return fig.show()
 
 
@@ -46,33 +46,7 @@ def create_candlestick(stock_for_candlestick):
         dict(bull_frame='#000', bull_body='#fff', bull_shadow='#000', bear_frame='#000', bear_body='#000',
              bear_shadow='#000'))
     vplot.colors.update(dict(bull_frame='#000', bull_body='#fff', bear_frame='#000', bear_body='#000'))
-
     return fplt.show()
-
-
-"""OLD CODE
-Previous graph code:
-    stock_df = get_stock_information(stock_for_graph)
-    plt.figure(figsize=(14, 5))
-    sns.set_style("ticks")
-    sns.lineplot(data=stock_df, x="Date", y="Close", color="firebrick")
-    sns.despine()
-    plt.title("Stock Price", size='x-large', color='blue')
-    return plt.show()"""
-
-
-""" OLD - not needed after adding percent change column in the get stock info function
-def percent_change(stock):
-    stock_data = get_stock_information(stock)
-    current_date = (date.today())
-    yesterday = (current_date - timedelta(days=1))
-    current_date = str(current_date)
-    yesterday = str(yesterday)
-    index_today = stock_data.isin([current_date]).any(axis=1).idxmax()
-    index_yesterday = stock_data.isin([yesterday]).any(axis=1).idxmax()
-    return stock_data"""
-
-
 
 
 print("Enter a stock ticker:")
