@@ -8,11 +8,17 @@ from tkinter import *
 
 root = Tk()
 
+e = Entry(root, width=20, borderwidth=5)
+e.pack()
+e.insert(0, "Enter your name: ")
+
+
 
 # Function for the button to do something
 def click():
-    number = 5
-    print(number + 5)
+    hello = "Hello " + e.get()
+    myLabel = Label(root, text=hello)
+    myLabel.pack()
 
 
 # Creating a label widget
@@ -20,7 +26,7 @@ def click():
 # myLabel2 = Label(root, text="Test")
 
 # Creating a button
-myButton = Button(root, text="Click Me!", command=click)
+myButton = Button(root, text="Enter Your Name", command=click)
 
 # Putting it on the screen
 # myLabel1.grid(row=0, column=0)
