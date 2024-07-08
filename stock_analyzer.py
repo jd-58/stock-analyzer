@@ -16,6 +16,8 @@ import finplot as fplt
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import date, timedelta
+import tkinter
+
 
 
 def get_stock_information(selected_ticker):
