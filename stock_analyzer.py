@@ -33,7 +33,7 @@ class User:
         self._stock_ticker = "AAPL"
         self._date_range = 30
 
-    def download_stock_information(self, stock_ticker):
+    def download_stock_information(self):
         """Downloads stock information from YFinance"""
         stock_ticker = self.get_stock_ticker()
         stock_data = yf.download(tickers=stock_ticker, period="1mo")
@@ -46,6 +46,10 @@ class User:
         stock_data.rename(columns=new_column_names, inplace=True)
         return stock_data
 
+    def set_stock_ticker(self, new_stock_ticker):
+        self._stock_ticker = new_stock_ticker
+        return self._stock_ticker
+
     def get_stock_ticker(self):
         """Returns the current selected stock ticker"""
         return self._stock_ticker
@@ -54,9 +58,9 @@ class User:
         """Returns the current date range"""
         return self._date_range
 
-    def create_stock_graph(self, stock_ticker):
+    def create_stock_graph(self):
         stock_ticker = self._stock_ticker
-        stock_df = self.download_stock_information(stock_ticker)
+        stock_df = self.download_stock_information()
         x_axes = stock_df['date']
         y_axes = stock_df['adj_close']
         fig, ax = plt.subplots()
@@ -70,13 +74,14 @@ user1 = User("AAPL", 30)
 
 
 def click():
-    # user_stock = stock_entry.get()
-    user_stock = "AAPL"
-    user_stock_information = user1.download_stock_information("AAPL")
+    user_stock = stock_entry.get()
+    user1.set_stock_ticker(user_stock)
+    # user_stock = "AAPL"
+    user_stock_information = user1.download_stock_information()
     user_stock_price = user_stock_information.adj_close[18]
     stock_price_label = Label(window, text=user_stock_price)
     stock_price_label.pack()
-    user_stock_graph = user1.create_stock_graph(user_stock)
+    user_stock_graph = user1.create_stock_graph()
     canvas = FigureCanvasTkAgg(user_stock_graph, master=window)
     canvas.get_tk_widget().pack()
     canvas.draw_idle()
