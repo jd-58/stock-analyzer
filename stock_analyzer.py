@@ -64,20 +64,13 @@ class User:
         """Returns the current date range"""
         return self._date_range
 
-    def create_stock_graph(self):
-        stock_df = self.download_stock_information()
-        x_axes = stock_df['date']
-        y_axes = stock_df['adj_close']
-        fig = Figure(figsize=(5, 4), dpi=100)
-        return fig
-
 
 user1 = User("AAPL", 30)
 
 
 def click():
+    """Creates the graph on button click"""
     user_stock = stock_entry.get()
-    # user_stock = "AAPL"
     user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
     user_stock_price = user_stock_information.adj_close[18]
@@ -85,7 +78,7 @@ def click():
     stock_price_label.pack()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
-    fig = Figure(figsize=(5, 4), dpi=100)
+    fig = Figure(figsize=(6.8, 4.8), dpi=100)
     fig.add_subplot(111).plot(x_axes, y_axes)
     canvas = FigureCanvasTkAgg(fig, master=window)
     canvas.get_tk_widget().pack()
@@ -99,19 +92,23 @@ def click():
 window = Tk()
 window.title("Stock Analyzer")
 
-
-# fig = Figure(figsize=(5, 4), dpi=100)
-
 # Creates an entry field using Tkinter
 stock_entry = Entry(window, width=20, borderwidth=5)
 stock_entry.pack()
 stock_entry.insert(0, "Enter a stock ticker:")
 
-
 # Creating a button
 get_stock_price_button = Button(window, text="Get current stock price", command=click)
 get_stock_price_button.pack()
 
+
+def _quit():
+    window.quit()  # stops mainloop
+    window.destroy()  # this is necessary on Windows to prevent Fatal Python Error: PyEval_RestoreThread: NULL state
+
+
+button = Button(master=window, text="Quit", command=_quit)  # Creates "Quit" button
+button.pack(side=BOTTOM)
 
 # Creates the GUI
 window.mainloop()
