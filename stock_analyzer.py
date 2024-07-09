@@ -77,14 +77,16 @@ def click():
     user_stock = stock_entry.get()
     user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
-    user_stock_price = user_stock_information.adj_close[18]
-    stock_price_label = Label(window, text=user_stock_price)
+    current_user_stock_price = user_stock_information.adj_close[18]
+    current_user_stock_price = round(current_user_stock_price, 2)
+    current_stock_price_text = "Current stock price: " + str(current_user_stock_price)
+    stock_price_label = Label(window, text=current_stock_price_text)
     stock_price_label.pack()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
     fig = Figure(figsize=(12, 4.8), dpi=100)
     ax = fig.add_subplot()
-    ax.plot(x_axes, y_axes)
+    ax.plot(x_axes, y_axes, **{'color': 'blue', 'marker': 'o'})
     ax.set_xlabel("Date")
     ax.set_ylabel("Price (USD)")
     locator = mdates.AutoDateLocator(minticks=7, maxticks=8)
