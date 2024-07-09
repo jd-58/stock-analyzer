@@ -13,7 +13,6 @@ e.pack()
 e.insert(0, "Enter your name: ")
 
 
-
 # Function for the button to do something
 def click():
     hello = "Hello " + e.get()
