@@ -15,7 +15,7 @@ import yfinance as yf
 import finplot as fplt
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import date, timedelta
+import datetime
 from tkinter import *
 from tkinter import ttk
 # Implement the default Matplotlib key bindings.
@@ -23,6 +23,9 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
 from matplotlib.figure import Figure
+import matplotlib.ticker as ticker
+import matplotlib.dates as mdates
+import matplotlib.units as munits
 
 
 class User:
@@ -70,6 +73,7 @@ user1 = User("AAPL", 30)
 
 def click():
     """Creates the graph on button click"""
+    # NEED TO FIX: separate the axis and graph stuff into separate functions to clean this up
     user_stock = stock_entry.get()
     user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
@@ -78,8 +82,17 @@ def click():
     stock_price_label.pack()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
-    fig = Figure(figsize=(6.8, 4.8), dpi=100)
-    fig.add_subplot(111).plot(x_axes, y_axes)
+    fig = Figure(figsize=(12, 4.8), dpi=100)
+    ax = fig.add_subplot()
+    ax.plot(x_axes, y_axes)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price (USD)")
+    locator = mdates.AutoDateLocator(minticks=7, maxticks=8)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.grid(True)
+    graph_title = user_stock + " Graph"
+    fig.suptitle(graph_title)
     canvas = FigureCanvasTkAgg(fig, master=window)
     canvas.get_tk_widget().pack()
     canvas.draw_idle()
