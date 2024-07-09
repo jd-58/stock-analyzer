@@ -1,11 +1,19 @@
 # Author: Jacob Deaton
 # GitHub username: jd-58
-# Date: 7/2/2024
-# Description: An app that will show various information about any stock the user chooses.
-# Suggested features: showing highest % gains from previous day along with basic start and close values.
-# Search bar to find stocks, and ability to favorite stocks.
+# Date:
+# Description:
 
-# Importing Libraries
+
+import tkinter
+
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+import numpy as np
+
 import math
 import numpy as np
 import pandas as pd
@@ -64,59 +72,57 @@ class User:
         """Returns the current date range"""
         return self._date_range
 
-    def create_stock_graph(self):
+    """def create_stock_graph(self):
         stock_df = self.download_stock_information()
         x_axes = stock_df['date']
         y_axes = stock_df['adj_close']
         fig = Figure(figsize=(5, 4), dpi=100)
-        return fig
+        fig.add
+        ax.set(xlabel="Date", ylabel="Adj. Close (USD)", title="Stock Analyzer")
+        # plt.show()
+        return plt.show()"""
 
 
 user1 = User("AAPL", 30)
 
+stock_df = user1.download_stock_information()
+x_axes = stock_df['date']
+y_axes = stock_df['adj_close']
+fig = Figure(figsize=(5, 4), dpi=100)
+fig.add_subplot(111).plot(x_axes, y_axes)
+root = tkinter.Tk()
+root.wm_title("Embedding in Tk")
 
-def click():
-    user_stock = stock_entry.get()
-    # user_stock = "AAPL"
-    user1.set_stock_ticker(user_stock)
-    user_stock_information = user1.download_stock_information()
-    user_stock_price = user_stock_information.adj_close[18]
-    stock_price_label = Label(window, text=user_stock_price)
-    stock_price_label.pack()
-    x_axes = user_stock_information['date']
-    y_axes = user_stock_information['adj_close']
-    fig = Figure(figsize=(5, 4), dpi=100)
-    fig.add_subplot(111).plot(x_axes, y_axes)
-    canvas = FigureCanvasTkAgg(fig, master=window)
-    canvas.get_tk_widget().pack()
-    canvas.draw_idle()
-    toolbar = NavigationToolbar2Tk(canvas, window, pack_toolbar=False)
-    toolbar.update()
-    toolbar.pack()
+"""fig = Figure(figsize=(5, 4), dpi=100)
+t = np.arange(0, 3, .01)
+fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))"""
 
+canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+canvas.draw()
+canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
-# The main window
-window = Tk()
-window.title("Stock Analyzer")
+toolbar = NavigationToolbar2Tk(canvas, root)
+toolbar.update()
+canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
 
-# fig = Figure(figsize=(5, 4), dpi=100)
-
-# Creates an entry field using Tkinter
-stock_entry = Entry(window, width=20, borderwidth=5)
-stock_entry.pack()
-stock_entry.insert(0, "Enter a stock ticker:")
+def on_key_press(event):
+    print("you pressed {}".format(event.key))
+    key_press_handler(event, canvas, toolbar)
 
 
-# Creating a button
-get_stock_price_button = Button(window, text="Get current stock price", command=click)
-get_stock_price_button.pack()
+canvas.mpl_connect("key_press_event", on_key_press)
 
 
-# Creates the GUI
-window.mainloop()
+def _quit():
+    root.quit()     # stops mainloop
+    root.destroy()  # this is necessary on Windows to prevent
+                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
-# print("Enter a stock ticker:")
-# user_ticker = str(input())
-# print(get_stock_information(user_ticker))
-# print(create_graph(user_ticker))
+
+button = tkinter.Button(master=root, text="Quit", command=_quit)
+button.pack(side=tkinter.BOTTOM)
+
+tkinter.mainloop()
+# If you put root.destroy() here, it will cause an error if the window is
+# closed with the window manager.
