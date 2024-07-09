@@ -39,6 +39,17 @@ def create_graph(stock_for_graph):
     return fig.show()
 
 
+"""def create_stock_graph(self):
+        stock_df = self.download_stock_information()
+        x_axes = stock_df['date']
+        y_axes = stock_df['adj_close']
+        fig, ax = plt.subplots()
+        ax.plot(x_axes, y_axes)
+        ax.set(xlabel="Date", ylabel="Adj. Close (USD)", title="Stock Analyzer")
+        # plt.show()
+        return plt.show()"""
+
+
 def create_candlestick(stock_for_candlestick):
     """Creates a candlestick chart for the chosen stock."""
     stock_data_for_graph = yf.download(tickers=stock_for_candlestick, start="2019-09-10", end="2020-10-09")

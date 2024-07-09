@@ -28,10 +28,10 @@ from matplotlib.figure import Figure
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
 
-    def __init__(self, stock_ticker, date_range):
+    def __init__(self, stock_ticker="AAPL", date_range=30):
         """Creates a User object with their specified stock ticker and date range."""
-        self._stock_ticker = "AAPL"
-        self._date_range = 30
+        self._stock_ticker = stock_ticker
+        self._date_range = date_range
 
     def download_stock_information(self):
         """Downloads stock information from YFinance"""
@@ -47,8 +47,14 @@ class User:
         return stock_data
 
     def set_stock_ticker(self, new_stock_ticker):
+        """Changes the user's stock ticker"""
         self._stock_ticker = new_stock_ticker
         return self._stock_ticker
+
+    def set_date_range(self, new_date_range):
+        """Changes the user's date range for their stock"""
+        self._date_range = new_date_range
+        return self._date_range
 
     def get_stock_ticker(self):
         """Returns the current selected stock ticker"""
@@ -59,15 +65,11 @@ class User:
         return self._date_range
 
     def create_stock_graph(self):
-        stock_ticker = self._stock_ticker
         stock_df = self.download_stock_information()
         x_axes = stock_df['date']
         y_axes = stock_df['adj_close']
-        fig, ax = plt.subplots()
-        ax.plot(x_axes, y_axes)
-        ax.set(xlabel="Date", ylabel="Adj. Close (USD)", title="Stock Analyzer")
-        # plt.show()
-        return ax.grid()
+        fig = Figure(figsize=(5, 4), dpi=100)
+        return fig
 
 
 user1 = User("AAPL", 30)
@@ -75,14 +77,17 @@ user1 = User("AAPL", 30)
 
 def click():
     user_stock = stock_entry.get()
-    user1.set_stock_ticker(user_stock)
     # user_stock = "AAPL"
+    user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
     user_stock_price = user_stock_information.adj_close[18]
     stock_price_label = Label(window, text=user_stock_price)
     stock_price_label.pack()
-    user_stock_graph = user1.create_stock_graph()
-    canvas = FigureCanvasTkAgg(user_stock_graph, master=window)
+    x_axes = user_stock_information['date']
+    y_axes = user_stock_information['adj_close']
+    fig = Figure(figsize=(5, 4), dpi=100)
+    fig.add_subplot(111).plot(x_axes, y_axes)
+    canvas = FigureCanvasTkAgg(fig, master=window)
     canvas.get_tk_widget().pack()
     canvas.draw_idle()
     toolbar = NavigationToolbar2Tk(canvas, window, pack_toolbar=False)
