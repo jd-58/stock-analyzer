@@ -26,11 +26,11 @@ from matplotlib.figure import Figure
 import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
 import matplotlib.units as munits
+from tkinter import messagebox
 
 
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
-
     def __init__(self, stock_ticker="AAPL", date_range=30, stock1_price=0):
         """Creates a User object with their specified stock ticker and date range."""
         self._stock_ticker = stock_ticker
@@ -83,8 +83,12 @@ user1 = User("AAPL", 30)
 
 def click():
     """Creates the graph on button click"""
-    # NEED TO FIX: separate the axis and graph stuff into separate functions to clean this up
     user_stock = stock_entry.get()
+    if str(user_stock) == "":
+        messagebox.showerror("Error", "Please enter a stock.")
+        return
+    if check_stock_existence(user_stock) == 1:
+        return
     user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
     current_user_stock_price = user_stock_information.adj_close[18]
@@ -125,6 +129,18 @@ def update_stock_price_label():
     stock_price_value_text.set(str(user1.get_stock1_price()))
 
 
+def check_stock_existence(stock_ticker):
+    """Checks if a stock exists in Yfinance, and creates an error window if it doesn't"""
+    info = yf.Ticker(stock_ticker).history(
+        period='1mo'
+    )
+    if len(info) < 1:
+        messagebox.showerror("Error", "Stock not found")
+        return 1
+
+
+check_stock_existence("MSFT")
+
 # The main window
 window = Tk()
 window.geometry("1400x1000")
@@ -161,10 +177,9 @@ stock_entry.grid(row=1, column=0)
 for widget in stock_info_frame.winfo_children():
     widget.grid_configure(padx=10, pady=5)
 
-
 # Creating a button
 get_stock_price_button = Button(stock_info_frame, text="Analyze Stock", command=click)
-get_stock_price_button.grid(row=4, column=1)
+get_stock_price_button.grid(row=3, column=1)
 
 
 def _quit():
