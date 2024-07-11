@@ -29,8 +29,11 @@ import matplotlib.units as munits
 from tkinter import messagebox
 
 
+# TO-DO: Add section for volume or % change, pick from days listed, fix date format at button of graph
+
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
+
     def __init__(self, stock_ticker="AAPL", date_range=30, stock1_price=0):
         """Creates a User object with their specified stock ticker and date range."""
         self._stock_ticker = stock_ticker
@@ -104,17 +107,35 @@ def create_stock_graph(stock_ticker):
     user_stock_information = user1.download_stock_information()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
+    y_min = min(y_axes)
+    y_max = max(y_axes)
+    y_min -= 3
+    y_max += 3
+
     fig = Figure(figsize=(12, 4.8), dpi=100)
     ax = fig.add_subplot()
-    ax.plot(x_axes, y_axes, **{'color': 'blue', 'marker': 'o'})
+    ax.plot(x_axes, y_axes, **{'color': 'blue'})
     ax.set_xlabel("Date")
-    ax.set_ylabel("Price (USD)")
+    ax.set_ylabel("Adj. Close (USD)")
+
     locator = mdates.AutoDateLocator(minticks=7, maxticks=8)
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_minor_locator(mdates.DayLocator())
-    ax.grid(True)
+    ax.grid(True, linestyle=':')
+
+    starting_price = float(user_stock_information.adj_close[0])
+
+    # Set threshold for where green dots (above starting price) and red dots (below starting price) appear
+    above_threshold = y_axes > starting_price
+    ax.scatter(x_axes[above_threshold], y_axes[above_threshold], color='green')
+    below_threshold = y_axes < starting_price
+    ax.scatter(x_axes[below_threshold], y_axes[below_threshold], color='red')
+
+    ax.set_ylim(y_min, y_max)
     graph_title = str(stock_ticker) + " Graph"
     fig.suptitle(graph_title)
+
+    # Creating canvas and embedding graph to Tkinter
     canvas = FigureCanvasTkAgg(fig, master=stock_graph_frame)
     canvas.get_tk_widget().pack()
     canvas.draw_idle()
@@ -138,8 +159,6 @@ def check_stock_existence(stock_ticker):
         messagebox.showerror("Error", "Stock not found")
         return 1
 
-
-check_stock_existence("MSFT")
 
 # The main window
 window = Tk()
