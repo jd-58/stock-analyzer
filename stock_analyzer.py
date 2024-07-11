@@ -31,10 +31,11 @@ import matplotlib.units as munits
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
 
-    def __init__(self, stock_ticker="AAPL", date_range=30):
+    def __init__(self, stock_ticker="AAPL", date_range=30, stock1_price=0):
         """Creates a User object with their specified stock ticker and date range."""
         self._stock_ticker = stock_ticker
         self._date_range = date_range
+        self._stock1_price = stock1_price
 
     def download_stock_information(self):
         """Downloads stock information from YFinance"""
@@ -59,6 +60,11 @@ class User:
         self._date_range = new_date_range
         return self._date_range
 
+    def set_stock1_price(self, new_stock1_price):
+        """Changes the stock price for stock 1"""
+        self._stock1_price = new_stock1_price
+        return self._stock1_price
+
     def get_stock_ticker(self):
         """Returns the current selected stock ticker"""
         return self._stock_ticker
@@ -66,6 +72,10 @@ class User:
     def get_date_range(self):
         """Returns the current date range"""
         return self._date_range
+
+    def get_stock1_price(self):
+        """Returns the current price for stock 1"""
+        return self._stock1_price
 
 
 user1 = User("AAPL", 30)
@@ -79,9 +89,8 @@ def click():
     user_stock_information = user1.download_stock_information()
     current_user_stock_price = user_stock_information.adj_close[18]
     current_user_stock_price = round(current_user_stock_price, 2)
-    current_stock_price_text = "Current stock price: " + str(current_user_stock_price)
-    stock_price_label = Label(window, text=current_stock_price_text)
-    stock_price_label.pack()
+    user1.set_stock1_price(current_user_stock_price)
+    update_stock_price_label()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
     fig = Figure(figsize=(12, 4.8), dpi=100)
@@ -95,26 +104,51 @@ def click():
     ax.grid(True)
     graph_title = user_stock + " Graph"
     fig.suptitle(graph_title)
-    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas = FigureCanvasTkAgg(fig, master=stock_graph_frame)
     canvas.get_tk_widget().pack()
     canvas.draw_idle()
     toolbar = NavigationToolbar2Tk(canvas, window, pack_toolbar=False)
     toolbar.update()
     toolbar.pack()
+    window.update_idletasks()
+
+
+def update_stock_price_label():
+    stock_price_value_text.set(str(user1.get_stock1_price()))
 
 
 # The main window
 window = Tk()
+window.geometry("1200x1000")
 window.title("Stock Analyzer")
 
+frame = Frame(window)
+frame.pack()
+
+stock_info_frame = LabelFrame(frame, text="Stock Information")
+stock_info_frame.grid(row=0, column=0, padx=20, pady=20)
+
+stock_name_label = Label(stock_info_frame, text="Enter a stock ticker:")
+stock_name_label.grid(row=0, column=0)
+
+new_stock_price_label = Label(stock_info_frame, text="Current stock price:")
+new_stock_price_label.grid(row=0, column=2)
+
+stock_price_value_text = StringVar()
+stock_price_value_label = Label(stock_info_frame, textvariable=stock_price_value_text)
+stock_price_value_label.grid(row=1, column=2)
+
+stock_graph_frame = LabelFrame(frame, text="Graph")
+stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
+
 # Creates an entry field using Tkinter
-stock_entry = Entry(window, width=20, borderwidth=5)
-stock_entry.pack()
-stock_entry.insert(0, "Enter a stock ticker:")
+stock_entry = Entry(stock_info_frame, width=20, borderwidth=5)
+stock_entry.grid(row=1, column=0)
+
 
 # Creating a button
-get_stock_price_button = Button(window, text="Get current stock price", command=click)
-get_stock_price_button.pack()
+get_stock_price_button = Button(stock_info_frame, text="Analyze Stock", command=click)
+get_stock_price_button.grid(row=4, column=1)
 
 
 def _quit():
