@@ -91,6 +91,13 @@ def click():
     current_user_stock_price = round(current_user_stock_price, 2)
     user1.set_stock1_price(current_user_stock_price)
     update_stock_price_label()
+    create_stock_graph(user_stock)
+
+
+def create_stock_graph(stock_ticker):
+    """Creates a Matplotlib line graph for the selected user stock."""
+    user1.set_stock_ticker(stock_ticker)
+    user_stock_information = user1.download_stock_information()
     x_axes = user_stock_information['date']
     y_axes = user_stock_information['adj_close']
     fig = Figure(figsize=(12, 4.8), dpi=100)
@@ -102,7 +109,7 @@ def click():
     ax.xaxis.set_major_locator(locator)
     ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.grid(True)
-    graph_title = user_stock + " Graph"
+    graph_title = str(stock_ticker) + " Graph"
     fig.suptitle(graph_title)
     canvas = FigureCanvasTkAgg(fig, master=stock_graph_frame)
     canvas.get_tk_widget().pack()
@@ -114,6 +121,7 @@ def click():
 
 
 def update_stock_price_label():
+    """Updates the stock price label to the current user1 stock price."""
     stock_price_value_text.set(str(user1.get_stock1_price()))
 
 
@@ -122,6 +130,7 @@ window = Tk()
 window.geometry("1400x1000")
 window.title("Stock Analyzer")
 
+# The frame for the main window
 frame = Frame(window)
 frame.pack()
 
