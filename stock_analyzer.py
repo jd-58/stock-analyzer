@@ -119,31 +119,38 @@ def update_stock_price_label():
 
 # The main window
 window = Tk()
-window.geometry("1200x1000")
+window.geometry("1400x1000")
 window.title("Stock Analyzer")
 
 frame = Frame(window)
 frame.pack()
 
+# Creating the Tkinter frames
 stock_info_frame = LabelFrame(frame, text="Stock Information")
 stock_info_frame.grid(row=0, column=0, padx=20, pady=20)
 
+stock_graph_frame = LabelFrame(frame, text="Graph")
+stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
+
+# Creating the Tkinter labels to go in the frames
 stock_name_label = Label(stock_info_frame, text="Enter a stock ticker:")
 stock_name_label.grid(row=0, column=0)
 
 new_stock_price_label = Label(stock_info_frame, text="Current stock price:")
 new_stock_price_label.grid(row=0, column=2)
 
-stock_price_value_text = StringVar()
+# Creating stock price frame, using Tkinter StringVar to allow it to be updated on click
+stock_price_value_text = StringVar(value="N/A")
 stock_price_value_label = Label(stock_info_frame, textvariable=stock_price_value_text)
 stock_price_value_label.grid(row=1, column=2)
-
-stock_graph_frame = LabelFrame(frame, text="Graph")
-stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
 
 # Creates an entry field using Tkinter
 stock_entry = Entry(stock_info_frame, width=20, borderwidth=5)
 stock_entry.grid(row=1, column=0)
+
+# Adding padding to the widgets
+for widget in stock_info_frame.winfo_children():
+    widget.grid_configure(padx=10, pady=5)
 
 
 # Creating a button
@@ -156,8 +163,10 @@ def _quit():
     window.destroy()  # this is necessary on Windows to prevent Fatal Python Error: PyEval_RestoreThread: NULL state
 
 
-button = Button(master=window, text="Quit", command=_quit)  # Creates "Quit" button
-button.pack(side=BOTTOM)
+# Creating a Quit button
+quit_button = Button(frame, text="Quit", command=_quit)
+quit_button.config(width=50)
+quit_button.grid(row=2, column=0, padx=20, pady=20)
 
 # Creates the GUI
 window.mainloop()
