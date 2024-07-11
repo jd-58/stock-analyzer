@@ -23,9 +23,7 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
 from matplotlib.figure import Figure
-import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
-import matplotlib.units as munits
 from tkinter import messagebox
 
 
@@ -41,7 +39,11 @@ class User:
         self._stock1_price = stock1_price
 
     def download_stock_information(self):
-        """Downloads stock information from YFinance"""
+        """Downloads stock information from YFinance
+        Returns:
+        pandas.DataFrame: A dataframe containing the processed stock data with columns for date, open price, high,
+        adjusted close, volume, and percentage change.
+        """
         stock_ticker = self.get_stock_ticker()
         stock_data = yf.download(tickers=stock_ticker, period="1mo")
         stock_data = stock_data.reset_index(drop=False)
@@ -90,7 +92,8 @@ def click():
     if str(user_stock) == "":
         messagebox.showerror("Error", "Please enter a stock.")
         return
-    if check_stock_existence(user_stock) == 1:
+    if check_stock_existence(user_stock) == 1:  # Check if the entered stock ticker exists.
+        # If not (check_stock_existence returns 1), exit the function early.
         return
     user1.set_stock_ticker(user_stock)
     user_stock_information = user1.download_stock_information()
@@ -151,7 +154,8 @@ def update_stock_price_label():
 
 
 def check_stock_existence(stock_ticker):
-    """Checks if a stock exists in Yfinance, and creates an error window if it doesn't"""
+    """Checks if a stock exists in Yfinance, and creates an error window if it doesn't.
+    RETURNS: 1 if the stock is not found. """
     info = yf.Ticker(stock_ticker).history(
         period='1mo'
     )
@@ -188,8 +192,18 @@ stock_price_value_text = StringVar(value="N/A")
 stock_price_value_label = Label(stock_info_frame, textvariable=stock_price_value_text)
 stock_price_value_label.grid(row=1, column=2)
 
-# Creates an entry field using Tkinter
-stock_entry = Entry(stock_info_frame, width=20, borderwidth=5)
+
+def validate_input(user_input):
+    """Limits user input to 10 characters"""
+    max_length = 10  # Maximum allowed length of the input
+    return len(user_input) <= max_length
+
+
+# Register the validation function
+validate_cmd = window.register(validate_input)
+
+# Creates an entry field using Tkinter. Validates on each keypress that the length is not > 10
+stock_entry = Entry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=20, borderwidth=5)
 stock_entry.grid(row=1, column=0)
 
 # Adding padding to the widgets
