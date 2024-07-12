@@ -15,6 +15,9 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from tkinter import messagebox
 import matplotlib.pyplot as plt
+from matplotlib.dates import WeekdayLocator, DayLocator, MonthLocator, YearLocator
+from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
+import matplotlib.ticker as ticker
 
 
 # TO-DO: Add a dropdown menu to pick date ranges for the graph,
@@ -142,10 +145,28 @@ def create_stock_graph(stock_ticker):
     ax.set_xlabel("Date")
     ax.set_ylabel("Adj. Close (USD)")
 
-    locator = mdates.AutoDateLocator(minticks=5, maxticks=6)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
-    ax.grid(True, linestyle=':')
+    if user1.get_date_range() == "5d":
+        # Set major ticks to every Monday and minor ticks to every day. Prevents error
+        ax.xaxis.set_major_locator(WeekdayLocator(byweekday=MO))
+        ax.xaxis.set_minor_locator(DayLocator())
+        ax.grid(True, linestyle=':')
+    elif user1.get_date_range() == "1mo":
+        ax.xaxis.set_major_locator(WeekdayLocator(byweekday=MO))
+        ax.xaxis.set_minor_locator(DayLocator())
+        ax.grid(True, linestyle=':')
+    elif user1.get_date_range() == "1y":
+        ax.xaxis.set_major_locator(DayLocator(1, 1))
+        ax.xaxis.set_minor_locator(mdates.DayLocator(interval=7))
+        ax.grid(True, linestyle=':')
+    elif user1.get_date_range() == "2y" or "5y":
+        ax.xaxis.set_major_locator(YearLocator())
+        ax.xaxis.set_minor_locator(MonthLocator())
+        ax.grid(True, linestyle=':')
+    else:
+        ax.xaxis.set_major_locator(MonthLocator())
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
+        ax.xaxis.set_minor_locator(mdates.DayLocator())
+        ax.grid(True, linestyle=':')
 
     starting_price = float(user_stock_information.adj_close[0])
 
