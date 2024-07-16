@@ -252,6 +252,10 @@ def create_stock_graph(stock_ticker):
         canvas.get_tk_widget().grid(row=0, column=0)
         canvas.draw_idle()
         toolbar = NavigationToolbar2Tk(canvas, frame, pack_toolbar=False)
+        # toolbar.config(background='#DBDBDB')
+        # toolbar._message_label.config(background='#002240')
+        # for button in toolbar.winfo_children():
+            # button.config(background='blue')
         toolbar.update()
         toolbar.grid(row=3, column=0)
         user1.set_graph_canvas_1(canvas)
@@ -301,6 +305,8 @@ def validate_input(user_input):
 window = CTk()
 window.geometry("1400x1000")
 window.title("Stock Analyzer")
+# Sets the background color of the graph toolbar to match the window
+window.tk_setPalette(background="#002240", selectColor="#1779A6", foreground="white")
 
 # The frame for the main window
 frame = CTkFrame(window)
