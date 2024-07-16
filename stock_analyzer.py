@@ -13,7 +13,8 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 from tkinter import messagebox
-import matplotlib.pyplot as plt
+from customtkinter import *
+from customtkinter import ctk_tk
 from matplotlib.dates import DayLocator
 from datetime import datetime
 
@@ -295,12 +296,12 @@ def validate_input(user_input):
 
 
 # The main window
-window = Tk()
+window = CTk()
 window.geometry("1400x1000")
 window.title("Stock Analyzer")
 
 # The frame for the main window
-frame = Frame(window)
+frame = CTkFrame(window)
 frame.pack()
 
 # Variable to put the current date into a string to use for Tkinter labels.
@@ -308,64 +309,64 @@ frame.pack()
 current_date = str(datetime.today().strftime('%m/%d/%Y'))  # m/d/yyy displays as d/m/yyyy, unsure why
 
 # Creating the Tkinter frames
-stock_info_frame = LabelFrame(frame, text="Stock Information")
+stock_info_frame = CTkFrame(frame)
 stock_info_frame.grid(row=0, column=0, padx=20, pady=20)
 
-stock_graph_frame = LabelFrame(frame, text="Graph")
+stock_graph_frame = CTkFrame(frame)
 stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
 
 # Creating the Tkinter labels to go in the frames
-stock_name_label = Label(stock_info_frame, text="Enter a stock ticker:")
+stock_name_label = CTkLabel(stock_info_frame, text="Enter a stock ticker:")
 stock_name_label.grid(row=0, column=1)
 
 current_stock_information_string = "Stock information for " + current_date
-current_stock_information_label = Label(stock_info_frame, text=current_stock_information_string)
+current_stock_information_label = CTkLabel(stock_info_frame, text=current_stock_information_string)
 current_stock_information_label.grid(row=3, column=2)
 
 stock_price_value_text = StringVar(value="")
-stock_price_value_label = Label(stock_info_frame, textvariable=stock_price_value_text)
-new_stock_price_label = Label(stock_info_frame, text="Adj. Close")
+stock_price_value_label = CTkLabel(stock_info_frame, textvariable=stock_price_value_text)
+new_stock_price_label = CTkLabel(stock_info_frame, text="Adj. Close")
 new_stock_price_label.grid(row=4, column=0)
 stock_price_value_label.grid(row=5, column=0)
 
 stock_open_text = StringVar(value="")
-stock_open_value = Label(stock_info_frame, textvariable=stock_open_text)
-stock_open_label = Label(stock_info_frame, text="Open")
+stock_open_value = CTkLabel(stock_info_frame, textvariable=stock_open_text)
+stock_open_label = CTkLabel(stock_info_frame, text="Open")
 stock_open_label.grid(row=4, column=1)
 stock_open_value.grid(row=5, column=1)
 
 stock_high_text = StringVar(value="")
-stock_high_label = Label(stock_info_frame, text="High")
+stock_high_label = CTkLabel(stock_info_frame, text="High")
 stock_high_label.grid(row=4, column=2)
-stock_high_value = Label(stock_info_frame, textvariable=stock_high_text)
+stock_high_value = CTkLabel(stock_info_frame, textvariable=stock_high_text)
 stock_high_value.grid(row=5, column=2)
 
 stock_perct_change_text = StringVar(value="")
-stock_perct_change_label = Label(stock_info_frame, text="Daily Pct. Change")
+stock_perct_change_label = CTkLabel(stock_info_frame, text="Daily Pct. Change")
 stock_perct_change_label.grid(row=4, column=3)
-stock_perct_change_value = Label(stock_info_frame, textvariable=stock_perct_change_text)
+stock_perct_change_value = CTkLabel(stock_info_frame, textvariable=stock_perct_change_text)
 stock_perct_change_value.grid(row=5, column=3)
 
 stock_volume_text = StringVar(value="")
-stock_volume_label = Label(stock_info_frame, text='Volume')
+stock_volume_label = CTkLabel(stock_info_frame, text='Volume')
 stock_volume_label.grid(row=4, column=4)
-stock_volume_value = Label(stock_info_frame, textvariable=stock_volume_text)
+stock_volume_value = CTkLabel(stock_info_frame, textvariable=stock_volume_text)
 stock_volume_value.grid(row=5, column=4)
 
 # Register the validation function
 validate_cmd = window.register(validate_input)
 
 # Creates an entry field using Tkinter. Validates on each keypress that the length is not > 10
-stock_entry = Entry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=20, borderwidth=5)
+stock_entry = CTkEntry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=100)
 stock_entry.grid(row=1, column=1)
 
-date_range_label = Label(stock_info_frame, text="Time period")
+date_range_label = CTkLabel(stock_info_frame, text="Time period")
 date_range_label.grid(row=0, column=3)
 
-date_range_selector = ttk.Combobox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
-                                                                               "6 months", "1 year", "2 years",
-                                                                               "5 years"])
-date_range_selector.current(0)
+date_range_selector = CTkComboBox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
+                                                                              "6 months", "1 year", "2 years",
+                                                                              "5 years"])
+date_range_selector.set("5 days")
 date_range_selector.grid(row=1, column=3)
 
 # Adding padding to the widgets
@@ -373,7 +374,7 @@ for widget in stock_info_frame.winfo_children():
     widget.grid_configure(padx=10, pady=5)
 
 # Creating analyze stock button
-analyze_stock_button = Button(stock_info_frame, width=30, text="Analyze Stock", command=click)
+analyze_stock_button = CTkButton(stock_info_frame, width=200, text="Analyze Stock", command=click, hover_color="green")
 analyze_stock_button.grid(row=6, column=2, pady=5)
 
 
@@ -403,8 +404,7 @@ def _quit():
 
 
 # Creating a Quit button
-quit_button = Button(frame, text="Quit", command=_quit)
-quit_button.config(width=50)
+quit_button = CTkButton(frame, width=350, text="Quit", hover_color='red', command=_quit)
 quit_button.grid(row=5, column=0, padx=20, pady=20)
 
 # Creates the GUI
