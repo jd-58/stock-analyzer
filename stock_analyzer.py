@@ -4,7 +4,7 @@
 # Description: An app that will show various information about any stock the user chooses.
 # Suggested features: showing highest % gains from previous day along with basic start and close values.
 # Search bar to find stocks, and ability to favorite stocks.
-
+import customtkinter
 # Importing Libraries
 import numpy as np
 import yfinance as yf
@@ -18,9 +18,9 @@ from customtkinter import ctk_tk
 from matplotlib.dates import DayLocator
 from datetime import datetime
 
+# Sets the default customtkinter theme to a custom theme
+customtkinter.set_default_color_theme("C:/apps/ctk_theme_builder/user_themes/Cobalt.json")
 
-# TO-DO: Add a dropdown menu to pick date ranges for the graph,
-# add section for volume or % change, pick from days listed, fix date format at button of graph
 
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
@@ -184,10 +184,12 @@ def create_stock_graph(stock_ticker):
     y_max += 3
 
     fig = Figure(figsize=(12, 4.8), dpi=100)
+    fig.set_facecolor('#002240')  # Set background of Figure to match the frame
     ax = fig.add_subplot()
-    ax.plot(x_axes, y_axes, **{'color': 'blue'})
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Adj. Close (USD)")
+    ax.plot(x_axes, y_axes, color='white')
+    ax.set_facecolor('#284A68')  # Set background color of graph to a grey-blue color
+    ax.set_xlabel("Date", color='#DBDBDB')
+    ax.set_ylabel("Adj. Close (USD)", color='#DBDBDB')
 
     # Configure tick marks. Intervals are in number of business days
     if user1.get_date_range() == "5d":
@@ -196,20 +198,17 @@ def create_stock_graph(stock_ticker):
         ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "1mo":
         # Set major ticks to weekly, and minor ticks to daily.
-        print("1 month")
         ax.xaxis.set_major_locator(DayLocator(interval=5))
         ax.xaxis.set_minor_locator(DayLocator())
         ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "3mo":
-        # Set major ticks to weekly, and minor ticks to daily.
-        print("3 months")
-        ax.xaxis.set_major_locator(DayLocator(interval=5))
+        # Set major ticks to bi-weekly, and minor ticks to daily.
+        ax.xaxis.set_major_locator(DayLocator(interval=10))
         ax.xaxis.set_minor_locator(DayLocator())
         ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "6mo":
         # Major ticks to each monthly , minor ticks to weekly
         ax.xaxis.set_major_locator(DayLocator(interval=20))
-        print("Test 6 MONTH")
         ax.xaxis.set_minor_locator(DayLocator(interval=5))
         ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "1y":
@@ -217,19 +216,22 @@ def create_stock_graph(stock_ticker):
         ax.xaxis.set_major_locator(DayLocator(interval=41))
         ax.xaxis.set_minor_locator(DayLocator(interval=10))
         ax.grid(True, linestyle=':')
-        print("1 year")
     elif user1.get_date_range() == "2y":
         # Major ticks to every 4 months, minor to monthly
         ax.xaxis.set_major_locator(DayLocator(interval=80))
         ax.xaxis.set_minor_locator(DayLocator(interval=20))
         ax.grid(True, linestyle=':')
-        print("2 years")
     elif user1.get_date_range() == "5y":
         # Major ticks to yearly, minor ticks to monthly
         ax.xaxis.set_major_locator(DayLocator(interval=250))
         ax.xaxis.set_minor_locator(DayLocator(interval=20))
         ax.grid(True, linestyle=':')
-        print("5 years")
+    ax.spines['bottom'].set_color('#DBDBDB')
+    ax.spines['left'].set_color('#DBDBDB')
+    ax.spines['top'].set_color('#DBDBDB')
+    ax.spines['right'].set_color('#DBDBDB')
+    ax.tick_params(axis='x', which='both', colors='#DBDBDB')
+    ax.tick_params(axis='y', colors='#DBDBDB')
     starting_price = float(user_stock_information.adj_close[0])
     # Set threshold for where green dots (above starting price) and red dots (below starting price) appear
     above_threshold = y_axes > starting_price
@@ -242,7 +244,7 @@ def create_stock_graph(stock_ticker):
 
     ax.set_ylim(y_min, y_max)
     graph_title = str(stock_ticker) + " Graph"
-    fig.suptitle(graph_title)
+    fig.suptitle(graph_title, color='#DBDBDB')
 
     if user1.get_graph_canvas_1() is None:
         # Creating canvas and embedding graph to Tkinter. Adds the toolbar to the graph.
