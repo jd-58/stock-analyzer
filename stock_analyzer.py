@@ -169,7 +169,6 @@ def create_stock_graph(stock_ticker):
         ax.grid(True, linestyle=':')
 
     starting_price = float(user_stock_information.adj_close[0])
-
     # Set threshold for where green dots (above starting price) and red dots (below starting price) appear
     above_threshold = y_axes > starting_price
     ax.scatter(x_axes[above_threshold], y_axes[above_threshold], color='green')
@@ -198,6 +197,12 @@ def create_stock_graph(stock_ticker):
         canvas = FigureCanvasTkAgg(fig, master=stock_graph_frame)
         canvas.get_tk_widget().grid(row=0, column=0)
         canvas.draw_idle()
+        toolbar_list = frame.grid_slaves(3, 0)
+        old_toolbar = toolbar_list[0]
+        old_toolbar.destroy()
+        new_toolbar = NavigationToolbar2Tk(canvas, frame, pack_toolbar=False)
+        new_toolbar.update()
+        new_toolbar.grid(row=3, column=0)
         user1.set_graph_canvas_1(canvas)
         window.update_idletasks()
 
