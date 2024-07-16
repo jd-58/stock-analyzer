@@ -12,12 +12,10 @@ from tkinter import *
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
-import matplotlib.dates as mdates
 from tkinter import messagebox
 import matplotlib.pyplot as plt
-from matplotlib.dates import WeekdayLocator, DayLocator, MonthLocator, YearLocator
-from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
-import pandas as pd
+from matplotlib.dates import DayLocator
+from datetime import datetime
 
 
 # TO-DO: Add a dropdown menu to pick date ranges for the graph,
@@ -26,12 +24,17 @@ import pandas as pd
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
 
-    def __init__(self, stock_ticker=None, date_range=None, stock1_price=0, graph_canvas_1=None):
+    def __init__(self, stock_ticker=None, date_range=None, stock1_price=0, graph_canvas_1=None, stock_volume=None,
+                 stock_high=None, stock_open=None, stock_perct_change=None):
         """Creates a User object with their specified stock ticker and date range."""
         self._stock_ticker = stock_ticker
         self._date_range = date_range
         self._stock1_price = stock1_price
         self._graph_canvas_1 = graph_canvas_1
+        self._stock_volume = stock_volume
+        self._stock_high = stock_high
+        self._stock_open = stock_open
+        self._stock_perct_change = stock_perct_change
 
     def download_stock_information(self):
         """Downloads stock information from YFinance
@@ -43,8 +46,10 @@ class User:
         stock_data = yf.download(tickers=stock_ticker, period=user1._date_range)
         stock_data = stock_data.reset_index(drop=False)
         stock_data.columns = stock_data.columns.str.replace(' ', '_')  # replaces space in a column title with _
-        stock_data['Date'] = stock_data['Date'].dt.strftime('%m/%d/%Y')  # Changes date to dd/mm/yyyy
+        stock_data['Date'] = stock_data['Date'].dt.strftime('%m/%d/%Y')  # m/d/yyy displays as d/m/yyyy, unsure why
         stock_data["%_Change"] = np.round(stock_data["Adj_Close"].pct_change() * 100, 2)
+        stock_data["Open"] = np.round(stock_data["Open"], 2)
+        stock_data["High"] = np.round(stock_data["High"], 2)
         new_column_names = {"Date": "date", "Open": "open_price", "High": "high", "Adj_Close": "adj_close",
                             "Volume": "volume", "%_Change": "percent_change"}
         stock_data.rename(columns=new_column_names, inplace=True)
@@ -70,6 +75,26 @@ class User:
         self._graph_canvas_1 = new_graph1
         return self._graph_canvas_1
 
+    def set_stock_volume(self, new_stock_volume):
+        """Sets the stock volume"""
+        self._stock_volume = new_stock_volume
+        return self._stock_volume
+
+    def set_stock_open(self, new_stock_open):
+        """Sets the stock opening value"""
+        self._stock_open = new_stock_open
+        return self._stock_open
+
+    def set_stock_perct_change(self, new_stock_perct_change):
+        """Sets the stock percentage change"""
+        self._stock_perct_change = new_stock_perct_change
+        return self._stock_perct_change
+
+    def set_stock_high(self, new_stock_high):
+        """Sets the stock high value"""
+        self._stock_high = new_stock_high
+        return self._stock_high
+
     def get_stock_ticker(self):
         """Returns the current selected stock ticker"""
         return self._stock_ticker
@@ -86,13 +111,24 @@ class User:
         """Returns the current graph for stock 1"""
         return self._graph_canvas_1
 
+    def get_stock_open(self):
+        """Returns the stock opening value"""
+        return self._stock_open
+
+    def get_stock_volume(self):
+        """Returns the stock volume"""
+        return self._stock_volume
+
+    def get_stock_perct_change(self):
+        """Returns the stock percentage change"""
+        return self._stock_perct_change
+
+    def get_stock_high(self):
+        """Returns the stock high value"""
+        return self._stock_high
+
 
 user1 = User(None, None)
-
-"""def clear_canvas():
-    # Clears the current graph canvas.
-    existing_canvas = user1.get_graph_canvas_1()
-    existing_canvas.delete('all')"""
 
 
 def clear_canvas():
@@ -116,9 +152,17 @@ def click():
     user_stock_information = user1.download_stock_information()
     current_date_index = len(user_stock_information) - 1
     current_user_stock_price = user_stock_information.adj_close[current_date_index]
+    current_stock_volume = user_stock_information.volume[current_date_index]
+    current_stock_open = user_stock_information.open_price[current_date_index]
+    current_stock_perct_change = str(user_stock_information.percent_change[current_date_index]) + " %"
+    current_stock_high = user_stock_information.high[current_date_index]
     current_user_stock_price = round(current_user_stock_price, 2)
     user1.set_stock1_price(current_user_stock_price)
-    update_stock_price_label()
+    user1.set_stock_open(current_stock_open)
+    user1.set_stock_volume(current_stock_volume)
+    user1.set_stock_perct_change(current_stock_perct_change)
+    user1.set_stock_high(current_stock_high)
+    update_stock_information_labels()
     if user1.get_graph_canvas_1() is not None:
         clear_canvas()
         create_stock_graph(user_stock)
@@ -224,9 +268,13 @@ def create_stock_graph(stock_ticker):
         window.update_idletasks()
 
 
-def update_stock_price_label():
+def update_stock_information_labels():
     """Updates the stock price label to the current user1 stock price."""
     stock_price_value_text.set(str(user1.get_stock1_price()))
+    stock_volume_text.set(str(user1.get_stock_volume()))
+    stock_open_text.set(str(user1.get_stock_open()))
+    stock_perct_change_text.set(str(user1.get_stock_perct_change()))
+    stock_high_text.set(str(user1.get_stock_high()))
 
 
 def check_stock_existence(stock_ticker):
@@ -255,6 +303,10 @@ window.title("Stock Analyzer")
 frame = Frame(window)
 frame.pack()
 
+# Variable to put the current date into a string to use for Tkinter labels.
+
+current_date = str(datetime.today().strftime('%m/%d/%Y'))  # m/d/yyy displays as d/m/yyyy, unsure why
+
 # Creating the Tkinter frames
 stock_info_frame = LabelFrame(frame, text="Stock Information")
 stock_info_frame.grid(row=0, column=0, padx=20, pady=20)
@@ -264,39 +316,65 @@ stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
 
 # Creating the Tkinter labels to go in the frames
 stock_name_label = Label(stock_info_frame, text="Enter a stock ticker:")
-stock_name_label.grid(row=0, column=0)
+stock_name_label.grid(row=0, column=1)
 
-new_stock_price_label = Label(stock_info_frame, text="Current stock price:")
-new_stock_price_label.grid(row=0, column=1)
+current_stock_information_string = "Stock information for " + current_date
+current_stock_information_label = Label(stock_info_frame, text=current_stock_information_string)
+current_stock_information_label.grid(row=3, column=2)
 
-# Creating stock price frame, using Tkinter StringVar to allow it to be updated on click
-stock_price_value_text = StringVar(value="N/A")
+stock_price_value_text = StringVar(value="")
 stock_price_value_label = Label(stock_info_frame, textvariable=stock_price_value_text)
-stock_price_value_label.grid(row=1, column=1)
+new_stock_price_label = Label(stock_info_frame, text="Adj. Close")
+new_stock_price_label.grid(row=4, column=0)
+stock_price_value_label.grid(row=5, column=0)
+
+stock_open_text = StringVar(value="")
+stock_open_value = Label(stock_info_frame, textvariable=stock_open_text)
+stock_open_label = Label(stock_info_frame, text="Open")
+stock_open_label.grid(row=4, column=1)
+stock_open_value.grid(row=5, column=1)
+
+stock_high_text = StringVar(value="")
+stock_high_label = Label(stock_info_frame, text="High")
+stock_high_label.grid(row=4, column=2)
+stock_high_value = Label(stock_info_frame, textvariable=stock_high_text)
+stock_high_value.grid(row=5, column=2)
+
+stock_perct_change_text = StringVar(value="")
+stock_perct_change_label = Label(stock_info_frame, text="Daily Pct. Change")
+stock_perct_change_label.grid(row=4, column=3)
+stock_perct_change_value = Label(stock_info_frame, textvariable=stock_perct_change_text)
+stock_perct_change_value.grid(row=5, column=3)
+
+stock_volume_text = StringVar(value="")
+stock_volume_label = Label(stock_info_frame, text='Volume')
+stock_volume_label.grid(row=4, column=4)
+stock_volume_value = Label(stock_info_frame, textvariable=stock_volume_text)
+stock_volume_value.grid(row=5, column=4)
 
 # Register the validation function
 validate_cmd = window.register(validate_input)
 
 # Creates an entry field using Tkinter. Validates on each keypress that the length is not > 10
 stock_entry = Entry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=20, borderwidth=5)
-stock_entry.grid(row=1, column=0)
+stock_entry.grid(row=1, column=1)
 
 date_range_label = Label(stock_info_frame, text="Time period")
-date_range_label.grid(row=0, column=2)
+date_range_label.grid(row=0, column=3)
 
 date_range_selector = ttk.Combobox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
                                                                                "6 months", "1 year", "2 years",
                                                                                "5 years"])
 date_range_selector.current(0)
-date_range_selector.grid(row=1, column=2)
+date_range_selector.grid(row=1, column=3)
 
 # Adding padding to the widgets
 for widget in stock_info_frame.winfo_children():
     widget.grid_configure(padx=10, pady=5)
 
 # Creating analyze stock button
-analyze_stock_button = Button(stock_info_frame, text="Analyze Stock", command=click)
-analyze_stock_button.grid(row=3, column=1, pady=5)
+analyze_stock_button = Button(stock_info_frame, width=30, text="Analyze Stock", command=click)
+analyze_stock_button.grid(row=6, column=2, pady=5)
 
 
 def retrieve_date_range():
