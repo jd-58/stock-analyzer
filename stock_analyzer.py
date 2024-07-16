@@ -17,7 +17,7 @@ from tkinter import messagebox
 import matplotlib.pyplot as plt
 from matplotlib.dates import WeekdayLocator, DayLocator, MonthLocator, YearLocator
 from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
-import matplotlib.ticker as ticker
+import pandas as pd
 
 
 # TO-DO: Add a dropdown menu to pick date ranges for the graph,
@@ -26,7 +26,7 @@ import matplotlib.ticker as ticker
 class User:
     """Stores user's selected stock ticker and the date range for the stock."""
 
-    def __init__(self, stock_ticker="AAPL", date_range="1mo", stock1_price=0, graph_canvas_1=None):
+    def __init__(self, stock_ticker=None, date_range=None, stock1_price=0, graph_canvas_1=None):
         """Creates a User object with their specified stock ticker and date range."""
         self._stock_ticker = stock_ticker
         self._date_range = date_range
@@ -43,7 +43,7 @@ class User:
         stock_data = yf.download(tickers=stock_ticker, period=user1._date_range)
         stock_data = stock_data.reset_index(drop=False)
         stock_data.columns = stock_data.columns.str.replace(' ', '_')  # replaces space in a column title with _
-        stock_data['Date'] = stock_data['Date'].astype(str)  # Prevents a warning when trying to compare dates
+        stock_data['Date'] = stock_data['Date'].dt.strftime('%m/%d/%Y')  # Changes date to dd/mm/yyyy
         stock_data["%_Change"] = np.round(stock_data["Adj_Close"].pct_change() * 100, 2)
         new_column_names = {"Date": "date", "Open": "open_price", "High": "high", "Adj_Close": "adj_close",
                             "Volume": "volume", "%_Change": "percent_change"}
@@ -87,8 +87,7 @@ class User:
         return self._graph_canvas_1
 
 
-user1 = User("AAPL", "1mo")
-
+user1 = User(None, None)
 
 """def clear_canvas():
     # Clears the current graph canvas.
@@ -145,29 +144,47 @@ def create_stock_graph(stock_ticker):
     ax.set_xlabel("Date")
     ax.set_ylabel("Adj. Close (USD)")
 
+    # Configure tick marks. Intervals are in number of business days
     if user1.get_date_range() == "5d":
-        # Set major ticks to every Monday and minor ticks to every day. Prevents error
-        ax.xaxis.set_major_locator(WeekdayLocator(byweekday=MO))
-        ax.xaxis.set_minor_locator(DayLocator())
+        # Set major ticks to every day. No minor ticks.
+        ax.xaxis.set_major_locator(DayLocator())
         ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "1mo":
-        ax.xaxis.set_major_locator(WeekdayLocator(byweekday=MO))
+        # Set major ticks to weekly, and minor ticks to daily.
+        print("1 month")
+        ax.xaxis.set_major_locator(DayLocator(interval=5))
         ax.xaxis.set_minor_locator(DayLocator())
         ax.grid(True, linestyle=':')
+    elif user1.get_date_range() == "3mo":
+        # Set major ticks to weekly, and minor ticks to daily.
+        print("3 months")
+        ax.xaxis.set_major_locator(DayLocator(interval=5))
+        ax.xaxis.set_minor_locator(DayLocator())
+        ax.grid(True, linestyle=':')
+    elif user1.get_date_range() == "6mo":
+        # Major ticks to each monthly , minor ticks to weekly
+        ax.xaxis.set_major_locator(DayLocator(interval=20))
+        print("Test 6 MONTH")
+        ax.xaxis.set_minor_locator(DayLocator(interval=5))
+        ax.grid(True, linestyle=':')
     elif user1.get_date_range() == "1y":
-        ax.xaxis.set_major_locator(DayLocator(1, 1))
-        ax.xaxis.set_minor_locator(mdates.DayLocator(interval=7))
+        # Major ticks to every other month, minor to every other week
+        ax.xaxis.set_major_locator(DayLocator(interval=41))
+        ax.xaxis.set_minor_locator(DayLocator(interval=10))
         ax.grid(True, linestyle=':')
-    elif user1.get_date_range() == "2y" or "5y":
-        ax.xaxis.set_major_locator(YearLocator())
-        ax.xaxis.set_minor_locator(MonthLocator())
+        print("1 year")
+    elif user1.get_date_range() == "2y":
+        # Major ticks to every 4 months, minor to monthly
+        ax.xaxis.set_major_locator(DayLocator(interval=80))
+        ax.xaxis.set_minor_locator(DayLocator(interval=20))
         ax.grid(True, linestyle=':')
-    else:
-        ax.xaxis.set_major_locator(MonthLocator())
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
-        ax.xaxis.set_minor_locator(mdates.DayLocator())
+        print("2 years")
+    elif user1.get_date_range() == "5y":
+        # Major ticks to yearly, minor ticks to monthly
+        ax.xaxis.set_major_locator(DayLocator(interval=250))
+        ax.xaxis.set_minor_locator(DayLocator(interval=20))
         ax.grid(True, linestyle=':')
-
+        print("5 years")
     starting_price = float(user_stock_information.adj_close[0])
     # Set threshold for where green dots (above starting price) and red dots (below starting price) appear
     above_threshold = y_axes > starting_price
@@ -267,8 +284,10 @@ stock_entry.grid(row=1, column=0)
 date_range_label = Label(stock_info_frame, text="Time period")
 date_range_label.grid(row=0, column=2)
 
-date_range_selector = ttk.Combobox(stock_info_frame, values=["5 days", "1 month", "3 months", "6 months",
-                                                             "1 year", "2 years", "5 years"])
+date_range_selector = ttk.Combobox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
+                                                                               "6 months", "1 year", "2 years",
+                                                                               "5 years"])
+date_range_selector.current(0)
 date_range_selector.grid(row=1, column=2)
 
 # Adding padding to the widgets
