@@ -1,6 +1,6 @@
 # Stock Analyzer
 
-Welcome to my Stock Analyzer project! Built in Python and utlizing Custom TKinter, this tool will use Yahoo's Finance API to generate a graph of recent stock prices and display information about the stock's current performance.
+Welcome to my Stock Analyzer project! Built in Python and utlizing Custom Tkinter, this tool will use Yahoo's Finance API to generate a graph of recent stock prices and display information about the stock's current performance.
 
 ![Screenshot of stock analyzer program. There is a graph of NVDA's price in the last 6 months.](/screenshots/stock-analyzer-aapl-6mo.png)
 
@@ -19,7 +19,7 @@ To run this project on your local machine, follow the following steps:
 
 #### Clone the repository to your local machine
 
-    For instructions on cloning a repository, [click here.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+For instructions on cloning a repository, [click here.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
 <br>
 
