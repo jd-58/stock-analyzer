@@ -2,7 +2,7 @@
 
 Welcome to my Stock Analyzer project! Built in Python and utlizing Custom TKinter, this tool will use Yahoo's Finance API to generate a graph of recent stock prices and display information about the stock's current performance.
 
-![Screenshot of stock analyzer program. There is a graph of NVDA's price in the last 6 months.](/screenshots/Stock-Analyzer-NVDA-6mo.png)
+![Screenshot of stock analyzer program. There is a graph of NVDA's price in the last 6 months.](/screenshots/stock-analyzer-aapl-6mo.png)
 
 ## Features
 - **Real-time information:** See the most up-to-date information on a given stock's adjusted close, opening price, daily high, daily percentage change, and volume.
