@@ -14,7 +14,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.figure import Figure
 from tkinter import messagebox
 from customtkinter import *
-from customtkinter import ctk_tk
 from matplotlib.dates import DayLocator
 from datetime import datetime
 
@@ -139,6 +138,26 @@ def clear_canvas():
         existing_canvas.get_tk_widget().delete(item)
 
 
+def retrieve_date_range():
+    """Retrieves user info from the date range fields, and sets the new date range in the User class."""
+    date_range = date_range_selector.get()
+    if date_range == "5 days":
+        date_range = "5d"
+    elif date_range == "1 month":
+        date_range = "1mo"
+    elif date_range == "3 months":
+        date_range = "3mo"
+    elif date_range == "6 months":
+        date_range = "6mo"
+    elif date_range == "1 year":
+        date_range = "1y"
+    elif date_range == "2 years":
+        date_range = "2y"
+    elif date_range == "5 years":
+        date_range = "5y"
+    user1.set_date_range(date_range)
+
+
 def click():
     """Creates the graph on button click"""
     retrieve_date_range()
@@ -233,6 +252,7 @@ def create_stock_graph(stock_ticker):
     ax.tick_params(axis='x', which='both', colors='#DBDBDB')
     ax.tick_params(axis='y', colors='#DBDBDB')
     starting_price = float(user_stock_information.adj_close[0])
+
     # Set threshold for where green dots (above starting price) and red dots (below starting price) appear
     above_threshold = y_axes > starting_price
     ax.scatter(x_axes[above_threshold], y_axes[above_threshold], color='green')
@@ -240,7 +260,7 @@ def create_stock_graph(stock_ticker):
     ax.scatter(x_axes[below_threshold], y_axes[below_threshold], color='red')
 
     # Draws a horizontal line at the starting price
-    ax.axhline(y=starting_price, color='r', linestyle='-')
+    ax.axhline(y=starting_price, color='r', linestyle=(0, (1, 5)))  # Creates a dotted line
 
     ax.set_ylim(y_min, y_max)
     graph_title = str(stock_ticker) + " Graph"
@@ -252,16 +272,12 @@ def create_stock_graph(stock_ticker):
         canvas.get_tk_widget().grid(row=0, column=0)
         canvas.draw_idle()
         toolbar = NavigationToolbar2Tk(canvas, frame, pack_toolbar=False)
-        # toolbar.config(background='#DBDBDB')
-        # toolbar._message_label.config(background='#002240')
-        # for button in toolbar.winfo_children():
-            # button.config(background='blue')
         toolbar.update()
         toolbar.grid(row=3, column=0)
         user1.set_graph_canvas_1(canvas)
         window.update_idletasks()
     else:
-        # Creating canvas and embedding graph to Tkinter. Does not add a toolbar to the graph.
+        # Creating canvas and embedding graph to Tkinter. Destroys old toolbar and adds new one.
         canvas = FigureCanvasTkAgg(fig, master=stock_graph_frame)
         canvas.get_tk_widget().grid(row=0, column=0)
         canvas.draw_idle()
@@ -303,7 +319,7 @@ def validate_input(user_input):
 
 # The main window
 window = CTk()
-window.geometry("1400x1000")
+window.geometry("1400x950")
 window.title("Stock Analyzer")
 # Sets the background color of the graph toolbar to match the window
 window.tk_setPalette(background="#002240", selectColor="#1779A6", foreground="white")
@@ -313,7 +329,6 @@ frame = CTkFrame(window)
 frame.pack()
 
 # Variable to put the current date into a string to use for Tkinter labels.
-
 current_date = str(datetime.today().strftime('%m/%d/%Y'))  # m/d/yyy displays as d/m/yyyy, unsure why
 
 # Creating the Tkinter frames
@@ -326,6 +341,22 @@ stock_graph_frame.grid(row=1, column=0, padx=20, pady=20)
 # Creating the Tkinter labels to go in the frames
 stock_name_label = CTkLabel(stock_info_frame, text="Enter a stock ticker:")
 stock_name_label.grid(row=0, column=1)
+
+date_range_label = CTkLabel(stock_info_frame, text="Time period")
+date_range_label.grid(row=0, column=3)
+
+date_range_selector = CTkComboBox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
+                                                                              "6 months", "1 year", "2 years",
+                                                                              "5 years"])
+date_range_selector.set("5 days")
+date_range_selector.grid(row=1, column=3)
+
+# Register the validation function
+validate_cmd = window.register(validate_input)
+
+# Creates an entry field using Tkinter. Validates on each keypress that the length is not > 10
+stock_entry = CTkEntry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=100)
+stock_entry.grid(row=1, column=1)
 
 current_stock_information_string = "Stock information for " + current_date
 current_stock_information_label = CTkLabel(stock_info_frame, text=current_stock_information_string)
@@ -361,22 +392,6 @@ stock_volume_label.grid(row=4, column=4)
 stock_volume_value = CTkLabel(stock_info_frame, textvariable=stock_volume_text)
 stock_volume_value.grid(row=5, column=4)
 
-# Register the validation function
-validate_cmd = window.register(validate_input)
-
-# Creates an entry field using Tkinter. Validates on each keypress that the length is not > 10
-stock_entry = CTkEntry(stock_info_frame, validate='key', validatecommand=(validate_cmd, '%P'), width=100)
-stock_entry.grid(row=1, column=1)
-
-date_range_label = CTkLabel(stock_info_frame, text="Time period")
-date_range_label.grid(row=0, column=3)
-
-date_range_selector = CTkComboBox(stock_info_frame, state='readonly', values=["5 days", "1 month", "3 months",
-                                                                              "6 months", "1 year", "2 years",
-                                                                              "5 years"])
-date_range_selector.set("5 days")
-date_range_selector.grid(row=1, column=3)
-
 # Adding padding to the widgets
 for widget in stock_info_frame.winfo_children():
     widget.grid_configure(padx=10, pady=5)
@@ -386,29 +401,9 @@ analyze_stock_button = CTkButton(stock_info_frame, width=200, text="Analyze Stoc
 analyze_stock_button.grid(row=6, column=2, pady=5)
 
 
-def retrieve_date_range():
-    """Retrieves user info from the date range fields, and sets the new date range in the User class."""
-    date_range = date_range_selector.get()
-    if date_range == "5 days":
-        date_range = "5d"
-    elif date_range == "1 month":
-        date_range = "1mo"
-    elif date_range == "3 months":
-        date_range = "3mo"
-    elif date_range == "6 months":
-        date_range = "6mo"
-    elif date_range == "1 year":
-        date_range = "1y"
-    elif date_range == "2 years":
-        date_range = "2y"
-    elif date_range == "5 years":
-        date_range = "5y"
-    user1.set_date_range(date_range)
-
-
 def _quit():
     window.quit()  # stops mainloop
-    window.destroy()  # this is necessary on Windows to prevent Fatal Python Error: PyEval_RestoreThread: NULL state
+    window.destroy()  # apparently needed to stop an error on Windows
 
 
 # Creating a Quit button
