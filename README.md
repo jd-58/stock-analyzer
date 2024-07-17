@@ -15,15 +15,19 @@ Welcome to my Stock Analyzer project! Built in Python and utlizing Custom TKinte
 ## Getting Started
 
 To run this project on your local machine, follow the following steps:
+<br>
 
 #### Clone the repository to your local machine
 
-    git clone https://github.com/your-username/stock-analyzer.git
+    For instructions on cloning a repository, [click here.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
+<br>
 
 #### Navigate to the project directory
 
-    cd etch-a-sketch
+    cd stock-analyzer
+
+<br>
 
 #### Open the stock-analyzer.py file, and run it.
 The program should appear in a separate window. 
