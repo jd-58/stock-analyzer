@@ -23,11 +23,7 @@ For instructions on cloning a repository, [click here.](https://docs.github.com/
 
 <br>
 
-#### Navigate to the project directory
 
-    cd stock-analyzer
-
-<br>
 
 #### Open the stock-analyzer.py file, and run it.
 The program should appear in a separate window. 
